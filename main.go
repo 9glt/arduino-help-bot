@@ -45,6 +45,7 @@ func main() {
 	fns.Bind("!help", fnHelp)
 	fns.Bind("!tag", fnTag)
 	fns.Bind("!reload", fnReload)
+	fns.Bind("!ping", fnPing)
 
 	fns.Fallback(fnFallback)
 

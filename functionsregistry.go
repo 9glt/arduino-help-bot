@@ -48,6 +48,11 @@ func (t *Functions) Run(s string, ds *discordgo.Session, dm *discordgo.MessageCr
 
 	v := make([]reflect.Value, funcArgs+2)
 
+	if funcArgs == 0 {
+		v[0] = reflect.ValueOf(ds)
+		v[1] = reflect.ValueOf(dm)
+	}
+
 	if funcArgs == 1 {
 		v[0] = reflect.ValueOf(s)
 		v[1] = reflect.ValueOf(ds)
