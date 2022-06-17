@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,7 @@ type Tag struct {
 }
 
 func parseAndRegisterTag(path string) error {
+	log.Printf("Parsing: %v", path)
 	fh, err := os.Open(path)
 	if err != nil {
 		return err
