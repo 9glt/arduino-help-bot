@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -20,19 +19,22 @@ func main() {
 	if envToken == "" {
 		panic("BOT_TOKEN is not set")
 	}
+
 	fns = NewFunctions(10)
-	fns.Bind("!help", func(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
-		_, err := ds.ChannelMessageSend(dm.ChannelID, fmt.Sprintf("Hello World! %s", s))
-		if err != nil {
-			log.Printf("%v", err)
-		}
-	})
+
+	// register defined functions in functions.go here
+	fns.Bind("!help", fnHelp)
+	fns.Bind("!tag", fnTag)
+
 	dg, err := discordgo.New("Bot " + envToken)
 	if err != nil {
 		panic(err)
 	}
+
 	dg.AddHandler(messageCreate)
+
 	dg.Identify.Intents = discordgo.IntentGuildMessages
+
 	err = dg.Open()
 	if err != nil {
 		panic(err)
@@ -52,9 +54,5 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Printf("Spot tagged message: %v", m.Content)
 		fns.Run(m.Content, s, m)
 	}
-
-}
-
-func update() {
 
 }
