@@ -53,3 +53,25 @@ func fnTag(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
 		log.Printf("%v", err)
 	}
 }
+
+func fnFallback(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
+	tagsRegistryLock.RLock()
+	tag, ok := tagsRegistry[s[1:]]
+	tagsRegistryLock.RUnlock()
+
+	if !ok {
+		return
+	}
+
+	_, err := ds.ChannelMessageSendEmbed(dm.ChannelID, &discordgo.MessageEmbed{
+		Title: tag.Title,
+		Image: &discordgo.MessageEmbedImage{
+			URL: tag.Image,
+		},
+		Fields: tag.Fields,
+	})
+
+	if err != nil {
+		log.Printf("%v", err)
+	}
+}

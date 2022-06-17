@@ -15,13 +15,21 @@ func NewFunctions(MaxParamLen int) *Functions {
 	return t
 }
 
+type fallbackFunction func(string, *discordgo.Session, *discordgo.MessageCreate)
+
 type Functions struct {
-	fns map[string]interface{}
-	mu  *sync.RWMutex
-	mpl int
+	fns      map[string]interface{}
+	mu       *sync.RWMutex
+	mpl      int
+	fallback fallbackFunction
+}
+
+func (t *Functions) Fallback(fn fallbackFunction) {
+	t.fallback = fn
 }
 
 func (t *Functions) Run(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
+	original := s
 	cmd := t.sw(&s)
 
 	t.mu.RLock()
@@ -29,6 +37,9 @@ func (t *Functions) Run(s string, ds *discordgo.Session, dm *discordgo.MessageCr
 	t.mu.RUnlock()
 
 	if !ok {
+		if t.fallback != nil {
+			t.fallback(original, ds, dm)
+		}
 		return
 	}
 

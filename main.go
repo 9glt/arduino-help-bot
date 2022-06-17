@@ -45,6 +45,8 @@ func main() {
 	fns.Bind("!tag", fnTag)
 	fns.Bind("!reload", fnReload)
 
+	fns.Fallback(fnFallback)
+
 	dg, err := discordgo.New("Bot " + envToken)
 	if err != nil {
 		panic(err)
