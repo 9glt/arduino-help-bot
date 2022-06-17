@@ -27,7 +27,6 @@ func fnReload(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("git pull error: %v ( %s )", err, output)
-		return
 	}
 
 	go ScanForTags()
