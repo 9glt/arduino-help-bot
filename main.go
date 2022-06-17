@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	envToken = os.Getenv("BOT_TOKEN")
-	envRoles = os.Getenv("BOT_ADMIN_ROLES")
+	envToken   = os.Getenv("BOT_TOKEN")
+	envRoles   = os.Getenv("BOT_ADMIN_ROLES")
+	envDocsDir = os.Getenv("BOT_DOCS_DIR")
 
 	roles = make(map[string]struct{})
 
@@ -25,6 +26,10 @@ var (
 func main() {
 	if envToken == "" {
 		panic("BOT_TOKEN is not set")
+	}
+
+	if envDocsDir == "" {
+		envDocsDir = "/docs"
 	}
 
 	for _, role := range strings.Split(envRoles, ",") {

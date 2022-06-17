@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -15,8 +16,21 @@ func fnHelp(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
 }
 
 func fnReload(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
-	log.Printf("%v %v", dm.Member.Roles, checkUserRole(dm.Member.Roles))
-	ScanForTags()
+
+	if !checkUserRole(dm.Member.Roles) {
+		log.Printf("User %s is not allowed to use this command", dm.Author.Username)
+		return
+	}
+
+	cmd := exec.Command("git", "pull")
+	cmd.Dir = envDocsDir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("git pull error: %v ( %s )", err, output)
+		return
+	}
+
+	go ScanForTags()
 }
 
 func fnTag(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {

@@ -43,7 +43,7 @@ func ScanForTags() {
 	tagsRegistry = make(map[string]*Tag)
 	tagsRegistryLock.Unlock()
 
-	err := filepath.Walk("/docs", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(envDocsDir, func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(path, ".json") {
 			err := parseAndRegisterTag(path)
 			if err != nil {

@@ -9,5 +9,5 @@ docker run --rm -it -v $(pwd)/docs:/docs -e BOT_TOKEN="tokenhere" -e BOT_ADMIN_R
 
 for local develpment:
 ```
-./build-and-run.sh [bottokengoeshere]
+./build-and-run.sh [bottokengoeshere] [admin,roles,ids,for,admin,commands]
 ```

@@ -20,6 +20,7 @@ WORKDIR /
 RUN apk update
 RUN apk upgrade -U
 RUN apk add gcc gcompat libgcc libwebp  musl-dev
+RUN apk add git
 COPY --from=compiler /discord-bot /
 
 ENTRYPOINT ["/discord-bot"]
