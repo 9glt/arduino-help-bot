@@ -71,8 +71,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "!") {
-		log.Printf("Spot tagged message: %v", m.Content)
+	if strings.HasPrefix(m.Content, "!") && checkLen(m.Content) {
 		fns.Run(m.Content, s, m)
 	}
 

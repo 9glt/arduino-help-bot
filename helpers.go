@@ -17,3 +17,20 @@ func checkUserRole(userRoles []string) bool {
 
 	return false
 }
+
+func checkLen(in string) bool {
+	if len(in) == 0 {
+		return false
+	}
+	i := 0
+	for _, v := range in {
+		if v == ' ' {
+			continue
+		}
+		i++
+		if i > 2 {
+			return true
+		}
+	}
+	return false
+}
