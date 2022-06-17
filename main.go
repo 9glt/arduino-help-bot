@@ -55,7 +55,8 @@ func main() {
 	}
 
 	dg.AddHandler(messageCreate)
-
+	dg.Identify.Presence.Game.Name = "!help | no version"
+	dg.Identify.Presence.Game.Type = 3
 	dg.Identify.Intents = discordgo.IntentGuildMessages
 
 	err = dg.Open()
