@@ -13,12 +13,16 @@ var (
 	envToken = os.Getenv("BOT_TOKEN")
 
 	fns *Functions
+
+	tagsRegistry = make(map[string]*Tag)
 )
 
 func main() {
 	if envToken == "" {
 		panic("BOT_TOKEN is not set")
 	}
+
+	ScanForTags()
 
 	fns = NewFunctions(10)
 
