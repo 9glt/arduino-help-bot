@@ -14,31 +14,28 @@ func fnHelp(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
 	}
 }
 
+func fnReload(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
+	log.Printf("%v %v", dm.Member.Roles, checkUserRole(dm.Member.Roles))
+	ScanForTags()
+}
+
 func fnTag(s string, ds *discordgo.Session, dm *discordgo.MessageCreate) {
+	tagsRegistryLock.RLock()
 	tag, ok := tagsRegistry[s]
+	tagsRegistryLock.RUnlock()
+
 	if !ok {
 		return
 	}
 
-	fields := make([]*discordgo.MessageEmbedField, 0)
-	for _, field := range tag.Fields {
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   field.Name,
-			Value:  field.Value,
-			Inline: field.Inline,
-		})
-	}
-
-	var embeds []*discordgo.MessageEmbed
-	embeds = append(embeds, &discordgo.MessageEmbed{
+	_, err := ds.ChannelMessageSendEmbed(dm.ChannelID, &discordgo.MessageEmbed{
 		Title: tag.Title,
 		Image: &discordgo.MessageEmbedImage{
 			URL: tag.Image,
 		},
-		Fields: fields,
+		Fields: tag.Fields,
 	})
 
-	_, err := ds.ChannelMessageSendEmbeds(dm.ChannelID, embeds)
 	if err != nil {
 		log.Printf("%v", err)
 	}

@@ -1,6 +1,6 @@
 {
 	"title": "What does pullup (or pulldown) mean, and how do I use it?",
-	"aliases": ["pullup", "pulldown"],
+	"aliases": ["pullup"],
 	"fields":	[
 		{
 			"name": "Pins used as INPUT should not be left unconnected (floating).",

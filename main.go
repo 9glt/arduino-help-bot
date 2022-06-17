@@ -5,21 +5,30 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 var (
 	envToken = os.Getenv("BOT_TOKEN")
+	envRoles = os.Getenv("BOT_ADMIN_ROLES")
+
+	roles = make(map[string]struct{})
 
 	fns *Functions
 
-	tagsRegistry = make(map[string]*Tag)
+	tagsRegistry     = make(map[string]*Tag)
+	tagsRegistryLock = &sync.RWMutex{}
 )
 
 func main() {
 	if envToken == "" {
 		panic("BOT_TOKEN is not set")
+	}
+
+	for _, role := range strings.Split(envRoles, ",") {
+		roles[role] = struct{}{}
 	}
 
 	ScanForTags()
@@ -29,6 +38,7 @@ func main() {
 	// register defined functions in functions.go here
 	fns.Bind("!help", fnHelp)
 	fns.Bind("!tag", fnTag)
+	fns.Bind("!reload", fnReload)
 
 	dg, err := discordgo.New("Bot " + envToken)
 	if err != nil {

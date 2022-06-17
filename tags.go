@@ -5,19 +5,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-type TagField struct {
-	Name   string `json:"name"`
-	Value  string `json:"value"`
-	Inline bool
-}
-
 type Tag struct {
-	Title   string     `json:"title"`
-	Aliases []string   `json:"aliases"`
-	Fields  []TagField `json:"fields"`
-	Image   string     `json:"image"`
+	Title   string                         `json:"title"`
+	Aliases []string                       `json:"aliases"`
+	Fields  []*discordgo.MessageEmbedField `json:"fields"`
+	Image   string                         `json:"image"`
 }
 
 func parseAndRegisterTag(path string) error {
@@ -33,14 +29,20 @@ func parseAndRegisterTag(path string) error {
 	if err != nil {
 		return err
 	}
+	tagsRegistryLock.Lock()
 	for _, alias := range tag.Aliases {
 		tagsRegistry[alias] = &tag
 	}
+	tagsRegistryLock.Unlock()
 
 	return nil
 }
 
 func ScanForTags() {
+	tagsRegistryLock.Lock()
+	tagsRegistry = make(map[string]*Tag)
+	tagsRegistryLock.Unlock()
+
 	err := filepath.Walk("/docs", func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(path, ".json") {
 			err := parseAndRegisterTag(path)
