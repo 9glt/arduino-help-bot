@@ -21,6 +21,7 @@ var (
 
 	tagsRegistry     = make(map[string]*Tag)
 	tagsRegistryLock = &sync.RWMutex{}
+	scannerLock      = NewLocker()
 )
 
 func main() {

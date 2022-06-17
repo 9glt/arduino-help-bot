@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -41,11 +42,25 @@ func parseAndRegisterTag(path string) error {
 }
 
 func ScanForTags() {
+
+	if !scannerLock.CheckAndLock() {
+		return
+	}
+
+	defer scannerLock.Unlock()
+
+	cmd := exec.Command("git", "pull")
+	cmd.Dir = envDocsDir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("git pull error: %v ( %s )", err, output)
+	}
+
 	tagsRegistryLock.Lock()
 	tagsRegistry = make(map[string]*Tag)
 	tagsRegistryLock.Unlock()
 
-	err := filepath.Walk(envDocsDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(envDocsDir, func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(path, ".json") {
 			err := parseAndRegisterTag(path)
 			if err != nil {
