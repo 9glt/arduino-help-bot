@@ -11,9 +11,12 @@ import (
 )
 
 var (
-	envToken   = os.Getenv("BOT_TOKEN")
-	envRoles   = os.Getenv("BOT_ADMIN_ROLES")
-	envDocsDir = os.Getenv("BOT_DOCS_DIR")
+	envToken         = os.Getenv("BOT_TOKEN")
+	envRoles         = os.Getenv("BOT_ADMIN_ROLES")
+	envDocsDir       = os.Getenv("BOT_DOCS_DIR")
+	envBlacklistExts = os.Getenv("BOT_BLACKLIST_EXTS")
+
+	varBlacklistExts = []string{}
 
 	roles = make(map[string]struct{})
 
@@ -35,6 +38,10 @@ func main() {
 
 	for _, role := range strings.Split(envRoles, ",") {
 		roles[role] = struct{}{}
+	}
+
+	if envBlacklistExts != "" {
+		varBlacklistExts = strings.Split(envBlacklistExts, ",")
 	}
 
 	ScanForTags()
@@ -76,6 +83,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "!") && checkLen(m.Content) {
 		fns.Run(m.Content, s, m)
+	}
+
+	for _, attachment := range m.Attachments {
+		if !checkExt(attachment.Filename) {
+			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			return
+		}
 	}
 
 }

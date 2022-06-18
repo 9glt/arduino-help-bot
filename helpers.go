@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 func checkUserRole(userRoles []string) bool {
 	if len(roles) == 0 {
 		return true
@@ -16,6 +18,18 @@ func checkUserRole(userRoles []string) bool {
 	}
 
 	return false
+}
+
+func checkExt(file string) bool {
+	if len(varBlacklistExts) == 0 {
+		return true
+	}
+	for _, ext := range varBlacklistExts {
+		if strings.HasSuffix(file, ext) {
+			return false
+		}
+	}
+	return true
 }
 
 func checkLen(in string) bool {
