@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -62,6 +63,12 @@ func main() {
 	}
 
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		log.Printf("mh")
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+			h(s, i)
+		}
+	})
 	dg.Identify.Presence.Game.Name = "!help | no version"
 	dg.Identify.Presence.Game.Type = 3
 	dg.Identify.Intents = discordgo.IntentGuildMessages
@@ -70,6 +77,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	for i, v := range commands {
+		cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, "275273435930951680", v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
+
 	log.Printf("Up and Running!")
 
 	runtime.Goexit()
@@ -88,6 +106,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	for _, attachment := range m.Attachments {
 		if !checkExt(attachment.Filename) {
 			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("disallowed filetype %v", attachment.Filename))
+			if err != nil {
+				log.Printf("%v", err)
+			}
 			return
 		}
 	}

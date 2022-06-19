@@ -1,0 +1,8 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  arduinofaqbot:
+    image: ghcr.io/9glt/arduino-help-bot:latest
+    environment:
+    - BOT_TOKEN=${TOKEN}
+    - BOT_BOT_ADMIN_ROLES=${ADMIN_ROLES}
+    - BOT_BLACKLIST_EXTS=${BLACKLIST_EXTS}
