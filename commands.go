@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -500,6 +501,78 @@ var (
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",
+			})
+		},
+		"help": func(ds *discordgo.Session, dm *discordgo.InteractionCreate) {
+			// options := i.ApplicationCommandData().Options
+
+			tags := &discordgo.MessageEmbed{}
+
+			tagsRegistryLock.RLock()
+			for k, v := range tagsRegistry {
+
+				tags.Fields = append(tags.Fields, &discordgo.MessageEmbedField{
+					Name:   "/tag " + k,
+					Value:  v.Title,
+					Inline: true,
+				})
+			}
+			tagsRegistryLock.RUnlock()
+			tags.Footer = &discordgo.MessageEmbedFooter{
+				Text: "Use !tag <tag> to get info about tag. ( example: !tag pulldown )",
+			}
+			_, err := ds.ChannelMessageSendEmbed(dm.ChannelID, tags)
+			if err != nil {
+				log.Printf("%v", err)
+			}
+
+			var embeds []*discordgo.MessageEmbed
+			embeds = append(embeds, &discordgo.MessageEmbed{
+				Title:  "/Help",
+				Fields: tags.Fields,
+			})
+
+			ds.InteractionRespond(dm.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Flags:  uint64(discordgo.MessageFlagsEphemeral),
+					Embeds: embeds,
+				},
+			})
+		},
+		"tag": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+
+			tagsRegistryLock.RLock()
+			tag, ok := tagsRegistry[options[0].Name]
+			tagsRegistryLock.RUnlock()
+
+			if !ok {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Flags:   uint64(discordgo.MessageFlagsEphemeral),
+						Content: "/shrug tag not found",
+					},
+				})
+				return
+			}
+
+			var embeds []*discordgo.MessageEmbed
+			embeds = append(embeds, &discordgo.MessageEmbed{
+				Title: tag.Title,
+				Image: &discordgo.MessageEmbedImage{
+					URL: tag.Image,
+				},
+				Fields: tag.Fields,
+			})
+
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Flags:  uint64(discordgo.MessageFlagsEphemeral),
+					Embeds: embeds,
+				},
 			})
 		},
 	}

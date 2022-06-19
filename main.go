@@ -16,6 +16,7 @@ var (
 	envRoles         = os.Getenv("BOT_ADMIN_ROLES")
 	envDocsDir       = os.Getenv("BOT_DOCS_DIR")
 	envBlacklistExts = os.Getenv("BOT_BLACKLIST_EXTS")
+	envGuildID       = os.Getenv("BOT_GUILD_ID")
 
 	varBlacklistExts = []string{}
 
@@ -64,7 +65,6 @@ func main() {
 
 	dg.AddHandler(messageCreate)
 	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		log.Printf("mh")
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
@@ -78,10 +78,53 @@ func main() {
 		panic(err)
 	}
 
+	var tags []*discordgo.ApplicationCommandOption
+
+	for tag, v := range tagsRegistry {
+		_tag := &discordgo.ApplicationCommandOption{
+			Name:        strings.ToLower(tag),
+			Description: v.Title,
+			Type:        discordgo.ApplicationCommandOptionSubCommand,
+		}
+		tags = append(tags, _tag)
+		log.Printf("command: %v :%v", tag, v.Title)
+	}
+
+	commands = append(commands, &discordgo.ApplicationCommand{
+		Name:        "help",
+		Description: "help tags",
+		// Options:     tags,
+	})
+
+	commands = append(commands, &discordgo.ApplicationCommand{
+		Name:        "tag",
+		Description: "help tags",
+		Options:     tags,
+	})
+
 	log.Println("Adding commands...")
+
+	commandsInServer, _ := dg.ApplicationCommands(dg.State.User.ID, envGuildID)
+	commandsInServerMap := make(map[string]struct{})
+	for _, cmd := range commandsInServer {
+		commandsInServerMap[cmd.Name] = struct{}{}
+		log.Printf("%v", cmd.Name)
+		// dg.ApplicationCommandDelete(dg.State.User.ID, "275273435930951680", cmd.ID)
+	}
+	// return
+	// dg.ApplicationCommands(dg.State.User.ID)
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	// commands = commands[len(commands)-2:]
 	for i, v := range commands {
-		cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, "275273435930951680", v)
+		if _, ok := commandsInServerMap[v.Name]; ok {
+			// _, err := dg.ApplicationCommandEdit(dg.State.User.ID, "275273435930951680", v.ID, v)
+			// if err != nil {
+			// 	log.Printf("Cannot create '%v' command: %v", v.Name, err)
+			// }
+			log.Printf("Command already in server: %v", v.Name)
+			continue
+		}
+		cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, envGuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}

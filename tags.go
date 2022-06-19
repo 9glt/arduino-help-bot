@@ -34,7 +34,7 @@ func parseAndRegisterTag(path string) error {
 	}
 	tagsRegistryLock.Lock()
 	for _, alias := range tag.Aliases {
-		tagsRegistry[alias] = &tag
+		tagsRegistry[strings.ToLower(alias)] = &tag
 	}
 	tagsRegistryLock.Unlock()
 

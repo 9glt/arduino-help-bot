@@ -1,0 +1,20 @@
+{
+  "title": "Solving library errors (such as \"yourlib.h not found\")",
+  "aliases": ["liberror", "libraryerror", "libmissing", "librarymissing"],
+  "directAliases": ["liberror"],
+  "fields": [
+    {
+      "name": "1. Is your Library installed?",
+      "value": "go to the Library Manager (Sketch -> Include Library -> Manage Libraries), search for the library, and install it. if it is already installed, try re-installing it through the library manager (Sketch -> include Library -> Manage Libraries)."
+    },
+    {
+      "name": "2. is your #include statement spelt correctly?",
+      "value": "check for any capitalization errors as well!"
+    },
+    {
+      "name": "Still can't fix it?",
+      "value": "check out [this arduino-forum post](https://forum.arduino.cc/t/no-headers-files-h-found/596090#:~:text=This%20might%20be%20result%20from,one%20of%20the%20libraries%20folders.) for more assistance."
+    }
+  ],
+  "image": ""
+}
